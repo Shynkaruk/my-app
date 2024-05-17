@@ -5,9 +5,8 @@ import {
   Marker,
   MarkerClusterer,
 } from "@react-google-maps/api";
-import db from './../Firebase'
-import "firebase/firestore";
-
+import db from "./../Firebase";
+import { collection, addDoc } from "firebase/firestore";
 
 const containerStyle = {
   width: "100%",
@@ -22,30 +21,27 @@ const center = {
 const MapShow: React.FC = () => {
   const [markers, setMarkers] = useState<{ lat: number; lng: number }[]>([]);
 
-  const addMarkerToFirebase = (marker: { lat: number; lng: number }) => {
-    db.collection("markers").add({
-      lat: marker.lat,
-      lng: marker.lng,
-      timestamp: new Date().getTime(),
-    })
-    .then((docRef: any) => {
-      console.log("Document written with ID: ", docRef.id);
-    })
-    .catch((error: any) => {
-      console.error("Error adding document: ", error);
-    });
-  };
-  
-  const handleMapClick = (event: google.maps.MapMouseEvent) => {
+  const handleMapClick = async (event: google.maps.MapMouseEvent) => {
     if (markers.length < 3) {
       const newMarker = {
         lat: event.latLng?.lat() || 0,
         lng: event.latLng?.lng() || 0,
       };
       setMarkers((current) => [...current, newMarker]);
-      addMarkerToFirebase(newMarker);
+  
+      try {
+        const docRef = await addDoc(collection(db, 'Quests'), {
+          lat: newMarker.lat,
+          lng: newMarker.lng,
+          timestamp: new Date().getTime(),
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
     }
   };
+  
 
   const DeleteMarkersAll = () => {
     setMarkers([]);
@@ -71,11 +67,7 @@ const MapShow: React.FC = () => {
           {(clusterer) => (
             <>
               {markers.map((marker, index) => (
-                <Marker
-                  key={index}
-                  position={marker}
-                  draggable={true}
-                />
+                <Marker key={index} position={marker} draggable={true} />
               ))}
             </>
           )}
