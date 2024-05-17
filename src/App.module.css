@@ -1,0 +1,21 @@
+.form { 
+    max-width: 600px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    margin: 50px auto;
+    font-family: Daikon, sans-serif;
+    padding: 30px 20px;
+}
+
+.main_form {
+    padding: 5px;
+}
+
+.form_header {
+    text-align: center;
+}
+
+.form_header img {
+    -webkit-user-drag: none;
+}
