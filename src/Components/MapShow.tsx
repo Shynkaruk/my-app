@@ -5,6 +5,9 @@ import {
   Marker,
   MarkerClusterer,
 } from "@react-google-maps/api";
+import db from './../Firebase'
+import "firebase/firestore";
+
 
 const containerStyle = {
   width: "100%",
@@ -19,6 +22,20 @@ const center = {
 const MapShow: React.FC = () => {
   const [markers, setMarkers] = useState<{ lat: number; lng: number }[]>([]);
 
+  const addMarkerToFirebase = (marker: { lat: number; lng: number }) => {
+    db.collection("markers").add({
+      lat: marker.lat,
+      lng: marker.lng,
+      timestamp: new Date().getTime(),
+    })
+    .then((docRef: any) => {
+      console.log("Document written with ID: ", docRef.id);
+    })
+    .catch((error: any) => {
+      console.error("Error adding document: ", error);
+    });
+  };
+  
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
     if (markers.length < 3) {
       const newMarker = {
@@ -26,6 +43,7 @@ const MapShow: React.FC = () => {
         lng: event.latLng?.lng() || 0,
       };
       setMarkers((current) => [...current, newMarker]);
+      addMarkerToFirebase(newMarker);
     }
   };
 
